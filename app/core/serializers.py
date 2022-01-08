@@ -1,14 +1,15 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from django.db import models
-from .util.extend import map_iran_fields
+from rest_framework import response
+from .util.extend import CreateRetrieveListUpdateDeleteViewSet, map_iran_fields
 from .util.helper import CellphoneField, is_valid_iran_national_id, NationalIdField
-from .models import UserMeta, VerificationSms
+from .models import UserMeta, VerificationSms, category,members, tag, targets, tasks#dailytabits
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
 from django.http import HttpResponse
-from django.db.models import Q
+from django.db.models import Q, fields
 from django.conf import settings
 from django.templatetags.static import static
 import math
@@ -396,3 +397,40 @@ class checkUserSerializer(serializers.Serializer):
         if not UserMeta.objects.filter(phone=phone).exists():
             raise serializers.ValidationError("کاربری با این شماره تلفن همراه ثبت نشده است .")
         return attrs
+
+
+
+class MembersSerializers(serializers.ModelSerializer):
+    class Meta:
+        model= members
+        fields = '__all__'
+
+class TargetsSerailizer(serializers.ModelSerializer):
+    class Meta:
+        model = targets
+        fields = "__all__"
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = category
+        fields = '__all__'
+
+class TagSerializer(serializers.Serializer):
+    class Meta:
+        model = tag
+        fields = '__all__'
+
+
+class TasksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = tasks
+        fields = '__all__'
+"""
+    def create(self, validated_data):
+        return validated_data"""
+
+"""class DailytabitsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = dailytabits
+        fields = '__all__'"""
+

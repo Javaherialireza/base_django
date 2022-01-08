@@ -1,7 +1,9 @@
+from random import choice, choices
 from django.db import models
 from django.contrib.auth.models import User, AbstractBaseUser, BaseUserManager, \
     PermissionsMixin, AnonymousUser
 from django.db.models import JSONField
+from django.db.models.deletion import CASCADE, DO_NOTHING
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -542,3 +544,136 @@ class MyAccountManager(BaseUserManager):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+
+class UserMeta1(models.Model):
+    class Meta:
+        verbose_name = "اطلاعات تکمیلی کاربر"
+        verbose_name_plural = "اطلاعات تکمیلی کاربران"
+
+    USER_STUFF = 0
+    USER_EMPLOYER = 1
+    #USER_IDEA = 3
+    USER_TYPE = (
+        (USER_STUFF , "کاربر عادی"),
+        (USER_EMPLOYER , "کارفرما"),
+        #(USER_IDEA,"شتا بدهی"),
+    )
+
+    nid = models.IntegerField(null=True)
+    phone = models.IntegerField( null=True)
+    email = models.CharField(max_length=120 , null=True)
+    User = models.OneToOneField(User,on_delete=models.DO_NOTHING)
+    type = models.IntegerField(choices=USER_TYPE,default=USER_EMPLOYER,null=True)
+
+    def __str__(self):
+        return self.User.first_name + " " + self.User.last_name
+
+
+class members (models.Model):
+    class Meta:
+        verbose_name = "member"
+        verbose_name_plural="members"
+
+    user = models.ForeignKey(User,on_delete=DO_NOTHING)
+    phone_number =models.CharField("phone", max_length=11, null=True)
+    #brithday = models.DateField(blank=True,null=False)
+    point = models.IntegerField(null=True)
+    
+    def __str__(self):
+        return self.user.first_name
+
+class targets (models.Model):
+    class Meta:
+        verbose_name = "target"
+        verbose_name_plural = "targets" 
+
+    state_arrived = 0
+    state_notarrived = 1
+    state_type =(
+        (state_arrived,"رسیده است"),
+        (state_notarrived,"نرسیده است"),
+    )
+
+    user = models.ForeignKey(User,on_delete=DO_NOTHING)
+    title = models.CharField(max_length=100,null=True)
+    #point = models.IntegerField(null=True)
+    state = models.IntegerField(choices =state_type)
+
+    def __str__(self):
+        return self.title 
+
+
+class category(models.Model):
+    class Meta:
+        verbose_name = "category"
+        verbose_name_plural = "categorys"
+    
+    title = models.CharField(max_length=100,null=False,blank=False ,default="")
+
+    def __str__(self):
+        return self.title
+
+    #user = models.ForeignKey(User,on_delete=CASCADE) 
+
+    # def __str__(self):
+    #     return self.title
+
+
+class tag(models.Model):
+    class Meta:
+        verbose_name = "tag"
+        verbose_name_plural = "tags"
+
+    title = models.CharField(max_length=100 , null=True , default="")
+    #category = models.ForeignKey(category,on_delete=DO_NOTHING)
+    #user = models.ForeignKey(User,on_delete=CASCADE)
+    
+    def __str__(self):
+        return self.title + " "
+
+class tasks(models.Model):
+    class Meta:
+        verbose_name = "task"
+        verbose_name_plural = "tasks"
+
+    task_doing = 0
+    task_done = 1
+    task_waiting = 2
+    task_archive = 3
+
+    task_type =(
+        (task_doing , "درحال انجام"),
+        (task_done , "انجام شده"),
+        (task_archive , "بایگانی"),
+
+    )
+
+    title = models.CharField(max_length=100, null=True)
+    text = models.TextField(max_length=None,null=True)
+    user = models.ForeignKey(User,on_delete=CASCADE)
+    point = models.IntegerField(null=True)
+    state = models.IntegerField(choices=task_type,null=True , default=task_done)
+    dodate = models.DateField(auto_now=False , auto_now_add=False)
+    reminder = models.DateTimeField(auto_now=False,null=True)
+    category = models.ManyToManyField(category,)
+    tag = models.ManyToManyField(tag)
+    creation_date = models.DateField(auto_now=True,)
+
+    def __str__(self):
+        return self.title + " "
+
+
+
+"""class dailytabits(models.Model):
+    class Meta:
+        verbose_name = "dailytabit"
+        verbose_name_plural = "dailytabits"
+
+    user = models.ForeignKey(User,on_delete=CASCADE)
+    title = models.CharField(max_length=100,null=True)
+    state = models.CharField(max_length=150,null=True)
+    point = models.IntegerField(null=True)
+
+    def __str__(self):
+        return self.title + " " +self.state """

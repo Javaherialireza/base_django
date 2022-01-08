@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework import generics
 from drf_yasg.utils import swagger_auto_schema
-from django.db.models import Q
-from rest_framework.serializers import ValidationError
+from django.db.models import Q, query
+from rest_framework.serializers import Serializer, ValidationError
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector, TrigramSimilarity
 from django.db.models import Value
 from rest_framework.authtoken.models import Token
@@ -18,7 +18,7 @@ from operator import or_
 
 from . import serializers
 from . import models
-from .util.extend import StandardResultsSetPagination, RetrieveListViewSet, raise_not_field_error, \
+from .util.extend import CreateRetrieveListViewSet, ListViewSet, StandardResultsSetPagination, RetrieveListViewSet, raise_not_field_error, \
     CreateRetrieveListUpdateDeleteViewSet, RetrieveListDeleteViewSet
 from .util.helper import play_filtering_form
 from .util.mixin import IsAuthenticatedPermission
@@ -38,8 +38,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 import uuid
 from django.conf import settings
 from django.apps import apps
-
-
+from django.views.generic import ListView
+from .models import *
 
 class RegistrationView(APIView):
 
@@ -213,3 +213,69 @@ class LoginRequestCodeVerificationView(generics.CreateAPIView):
 
 class checkUserExistView(generics.CreateAPIView):
     serializer_class = serializers.checkUserSerializer
+
+
+
+
+class user_metaView(ListView):
+    def get_queryset(self):
+        return models.UserMeta1.objects.all()
+    
+
+"""class membersView(APIView):
+    def get(self,*args, **kwargs):
+        member = models.members.objects.all()
+        serializer = serializers.membersserializers(models.members,many = True)
+        return Response(serializer.data)"""
+class MembersViewset(CreateRetrieveListUpdateDeleteViewSet):
+    serializer_class = serializers.MembersSerializers
+    queryset =members.objects.all()
+
+
+    """def get_queryset(self):
+        return models.members.abjects.all()
+    """
+class TargetsViewset(CreateRetrieveListUpdateDeleteViewSet):
+    serializer_class = serializers.TargetsSerailizer
+    queryset =targets.objects.all()
+
+class CategoryViewset(CreateRetrieveListUpdateDeleteViewSet):
+    serializer_class = serializers.CategorySerializer
+    queryset = category.objects.all()
+
+class TagViewset(CreateRetrieveListUpdateDeleteViewSet):
+    serializer_class = serializers.TagSerializer
+    queryset = tag.objects.all()
+
+
+class TasksViewset(CreateRetrieveListUpdateDeleteViewSet):
+    serializer_class = serializers.TasksSerializer
+    queryset = tasks.objects.all()
+
+"""class DailytabitsViewset(CreateRetrieveListUpdateDeleteViewSet):
+    serializer = serializers.DailytabitsSerializer
+    queryset = dailytabits.objects.all()"""
+"""class targetsView(ListView):
+    def get_queryset(self):
+        return models.targets.objects.all()
+
+class categoryView(ListView):
+    def get_queryset(self):
+        return models.category.abjects.all()
+
+class tagView(ListView):
+    def get_queryset(self):
+        return models.tag.objects.all()
+
+class tasksView(ListView):
+    def get_queryset(self):
+        return models.tasks.objects.all()
+
+    
+    
+class dailytabitsView(ListView):
+    def get_queryset(self):
+        return models.dailytabits.objects.all()"""
+    
+
+    
